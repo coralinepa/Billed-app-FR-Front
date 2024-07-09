@@ -153,10 +153,14 @@ export default class {
       $(`#status-bills-container${this.index}`).html("");
       this.counter++;
     }
-
+    //Parcours des factures : La méthode forEach permet de parcourir chaque élément de la liste bills.
     bills.forEach((bill) => {
+      //Sélection de l'élément HTML : Pour chaque facture, le code sélectionne un élément HTML en utilisant l'ID de la facture. Le sélecteur jQuery #open-bill${bill.id} correspond à un élément avec l'ID open-bill suivi de l'identifiant unique de la facture (bill.id).
       $(`#open-bill${bill.id}`)
+        //Désactivation de l'événement précédent : La méthode .off("click") est utilisée pour désactiver tout gestionnaire d'événements click précédemment attaché à cet élément. Cela garantit que seuls les nouveaux gestionnaires d'événements seront actifs, évitant ainsi les conflits ou les multiples déclenchements d'événements.
         .off("click")
+        //Ajout du gestionnaire d'événements click : La méthode .on("click", (e) => { ... }) ajoute un nouveau gestionnaire d'événements click à l'élément sélectionné. Lorsque l'utilisateur clique sur l'élément, la fonction fléchée fournie est exécutée.
+
         .on("click", (e) => {
           this.handleEditTicket(e, bill, bills);
         });
