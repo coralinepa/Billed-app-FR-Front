@@ -1,7 +1,9 @@
 import { ROUTES_PATH } from "../constants/routes.js";
 export let PREVIOUS_LOCATION = "";
 
-// we use a class so as to test its methods in e2e tests
+//La classe Login est utilisée pour gérer le processus de connexion pour les employés et les administrateurs
+//Propriétés : document, localStorage, onNavigate, PREVIOUS_LOCATION, et store.
+//Sélection des formulaires : Sélectionne les formulaires d'employé et d'administrateur et leur ajoute des écouteurs d'événements pour gérer la soumission.
 export default class Login {
   constructor({
     document,
@@ -24,6 +26,12 @@ export default class Login {
     );
     formAdmin.addEventListener("submit", this.handleSubmitAdmin);
   }
+
+  //Empêche le comportement par défaut de soumission du formulaire.
+  //Crée un objet user avec les informations de l'utilisateur.
+  //Stocke l'utilisateur dans localStorage.
+  //Tente de connecter l'utilisateur en appelant this.login(user). Si cela échoue, crée un nouvel utilisateur.
+  //Navigation vers la page des factures (Bills) après une connexion réussie et met à jour PREVIOUS_LOCATION.
   handleSubmitEmployee = (e) => {
     e.preventDefault();
     const user = {
@@ -46,6 +54,8 @@ export default class Login {
       });
   };
 
+  //Méthode handleSubmitAdmin
+  //Cette méthode fonctionne de la même manière que handleSubmitEmployee, mais pour les administrateurs, naviguant vers le tableau de bord (Dashboard).
   handleSubmitAdmin = (e) => {
     e.preventDefault();
     const user = {
@@ -57,6 +67,7 @@ export default class Login {
       ).value,
       status: "connected",
     };
+    console.log(user);
     this.localStorage.setItem("user", JSON.stringify(user));
     this.login(user)
       .catch((err) => this.createUser(user))

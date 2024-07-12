@@ -37,18 +37,29 @@ describe("Given I am connected as an employee", () => {
       const windowIcon = screen.getByTestId("icon-window");
       expect(windowIcon).toHaveClass("active-icon");
     });
-    //Verification de l'ordre des factures - Affiche les factures et vérifie qu'elles sont triées de la plus ancienne à la plus récente.
+    //Verification de l'ordre des factures - Affiche les factures et vérifie qu'elles sont triées de la récente à la plus
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({
         data: bills,
       });
+      document.body.innerHTML = BillsUI({
+        data: bills,
+      });
+
+      // Extraire les dates du DOM
       const dates = screen
         .getAllByText(
           /^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i
         )
         .map((a) => a.innerHTML);
+
+      // Fonction de tri anti-chronologique
       const antiChrono = (a, b) => (a < b ? 1 : -1);
+
+      // Trier les dates extraites
       const datesSorted = [...dates].sort(antiChrono);
+
+      // Vérifier que les dates sont dans le bon ordre
       expect(dates).toEqual(datesSorted);
     });
   });

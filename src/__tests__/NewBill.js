@@ -7,7 +7,13 @@ import { screen, fireEvent } from "@testing-library/dom";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
-import mockStore from "../__mocks__/store.js";
+import { ROUTES_PATH } from "../constants/routes.js";
+import mockStore from "../__mocks__/store";
+import router from "../app/Router.js";
+
+jest.mock("../app/store", () => {
+  return mockStore;
+});
 
 // Initialisation
 //Simulation de localStorage et ajout d'un utilisateur de type "Employee".
@@ -29,6 +35,11 @@ describe("Given I am connected as an employee", () => {
   let newBill;
 
   beforeEach(() => {
+    jest.spyOn(mockStore, "bills");
+    Object.defineProperty(window, "localStorage", {
+      value: localStorageMock,
+    });
+
     document.body.innerHTML = NewBillUI();
     newBill = new NewBill({
       document,
@@ -136,6 +147,53 @@ describe("Given I am connected as an employee", () => {
         fireEvent.submit(submitForm);
 
         expect(handleSubmit).toHaveBeenCalled();
+      });
+    });
+    //Tests pour les erreurs d'API - Simule des erreurs d'API et vérifie que les messages d'erreur appropriés ("Erreur 404" et "Erreur 500") sont affichés.
+    describe("When an error occurs on API", () => {
+      beforeEach(() => {
+        jest.spyOn(mockStore, "bills");
+        Object.defineProperty(window, "localStorage", {
+          value: localStorageMock,
+        });
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+            email: "a@a",
+          })
+        );
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.appendChild(root);
+        router();
+      });
+
+      test("fetches bills from an API and fails with 404 message error", async () => {
+        const mockedBill = jest
+          .spyOn(mockStore, "bills")
+          .mockImplementationOnce(() => {
+            return {
+              create: jest.fn().mockRejectedValue(new Error("Erreur 404")),
+            };
+          });
+
+        await expect(mockedBill().create).rejects.toThrow("Erreur 404");
+      });
+
+      test("fetches messages from an API and fails with 500 message error", async () => {
+        const mockedBill = jest
+          .spyOn(mockStore, "bills")
+          .mockImplementationOnce(() => {
+            return {
+              create: jest.fn().mockRejectedValue(new Error("Erreur 500")),
+            };
+          });
+
+        await expect(mockedBill().create).rejects.toThrow("Erreur 500");
+      });
+      afterEach(() => {
+        document.body.innerHTML = "";
       });
     });
   });
